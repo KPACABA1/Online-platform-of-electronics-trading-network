@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'staff',
     'shops',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -95,5 +96,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Настройки для работы с пользователями
+# Настройки для работы с сотрудниками
 AUTH_USER_MODEL = 'staff.Employee'
+
+# Настройка для авторизации сотрудников
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
