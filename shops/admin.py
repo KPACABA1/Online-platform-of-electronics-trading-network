@@ -31,7 +31,7 @@ class CityFactoryFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         """Метод queryset отвечает за применение фильтра к запросу"""
         if self.value():
-            return queryset.filter(contact__city=self.value())
+            return queryset.filter(contacts__in=Contacts.objects.filter(city=self.value()))
         else:
             return queryset
 
@@ -57,16 +57,17 @@ class CityRetailNetworkFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         """Метод queryset отвечает за применение фильтра к запросу"""
         if self.value():
-            return queryset.filter(contact__city=self.value())
+            return queryset.filter(contacts__in=Contacts.objects.filter(city=self.value()))
         else:
             return queryset
 
 
 @admin.register(RetailNetwork)
 class RetailNetworkAdmin(admin.ModelAdmin):
-    """Админка для розничной сети со ссылкой на поставщика."""
+    """Админка для розничной сети со ссылкой на поставщика и admin action по очищению задолженности перед поставщиком."""
     list_display = ('id', 'title', 'link_to_supplier')
     list_filter = [CityRetailNetworkFilter]
+    actions = ('debt_cancellation',)
 
     @admin.display(description='Поставщик')
     def link_to_supplier(self, obj):
@@ -75,6 +76,10 @@ class RetailNetworkAdmin(admin.ModelAdmin):
             return format_html(
                 f'<a href="/admin/shops/factory/{obj.provider.id}/change/">{obj.provider.title}')
         return 'не указан'
+
+    def debt_cancellation(modeladmin, request, queryset):
+        """Admin action по очищению задолженности перед поставщиком у выбранных моделей"""
+        queryset.update(debt_to_supplier=0)
 
 
 class IndividualEntrepreneurFilter(SimpleListFilter):
@@ -90,16 +95,18 @@ class IndividualEntrepreneurFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         """Метод queryset отвечает за применение фильтра к запросу"""
         if self.value():
-            return queryset.filter(contact__city=self.value())
+            return queryset.filter(contacts__in=Contacts.objects.filter(city=self.value()))
         else:
             return queryset
 
 
 @admin.register(IndividualEntrepreneur)
 class IndividualEntrepreneurAdmin(admin.ModelAdmin):
-    """Админка для индивидуального предпринимателя со ссылкой на поставщика и фильтрацией по городу."""
+    """Админка для индивидуального предпринимателя со ссылкой на поставщика, фильтрацией по городу и admin action по
+    очищению задолженности перед поставщиком."""
     list_display = ('id', 'title', 'linked_factory')
     list_filter = [IndividualEntrepreneurFilter]
+    actions = ('debt_cancellation',)
 
     @admin.display(description='Поставщик')
     def linked_factory(self, obj):
@@ -110,3 +117,6 @@ class IndividualEntrepreneurAdmin(admin.ModelAdmin):
             return format_html(f'<a href="/admin/shops/retailnetwork/{obj.provider_retail_network.id}/change/">{obj.provider_retail_network.title}')
         return 'не указан'
 
+    def debt_cancellation(modeladmin, request, queryset):
+        """Admin action по очищению задолженности перед поставщиком у выбранных моделей"""
+        queryset.update(debt_to_supplier=0)
