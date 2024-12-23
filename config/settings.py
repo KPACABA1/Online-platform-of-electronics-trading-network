@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'staff',
     'shops',
     'rest_framework_simplejwt',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -99,9 +100,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Настройки для работы с сотрудниками
 AUTH_USER_MODEL = 'staff.Employee'
 
-# Настройка для авторизации сотрудников
+# Настройка для авторизации сотрудников и фильтрации
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
