@@ -15,6 +15,15 @@ class EmployeeCreateAPIView(CreateAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
+    def perform_create(self, serializer):
+        """Вмешиваюсь в логику контроллера для его правильной регистрации сотрудников."""
+        # Сохраняю пользователя и сразу делаю его активным
+        employee = serializer.save(is_active=True)
+
+        # Хэширую пароль пользователя и сохраняю пользователя
+        employee.set_password(employee.password)
+        employee.save()
+
 
 class EmployeeUpdateAPIView(UpdateAPIView):
     """Класс для редактирования моделей сотрудников."""

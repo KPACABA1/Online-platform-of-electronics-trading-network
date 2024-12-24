@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from shops.models import Contacts, Product, Factory, RetailNetwork, IndividualEntrepreneur
@@ -44,6 +45,12 @@ class IndividualEntrepreneurSerializer(ModelSerializer):
     class Meta:
         model = IndividualEntrepreneur
         fields = '__all__'
+
+    def validate(self, data):
+        """Проверка, что только у модели есть только 1 поставщик"""
+        if 'provider_factory' in data and 'provider_retail_network' in data:
+            raise serializers.ValidationError("Может быть не более одного поставщика.")
+        return data
 
 
 class IndividualEntrepreneurUpdateSerializer(ModelSerializer):

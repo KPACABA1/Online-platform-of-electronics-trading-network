@@ -1,6 +1,10 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+
+from rest_framework.permissions import BasePermission
+
 
 load_dotenv()
 
@@ -102,8 +106,23 @@ AUTH_USER_MODEL = 'staff.Employee'
 
 # Настройка для авторизации сотрудников и фильтрации
 REST_FRAMEWORK = {
+    # Настройка для авторизации
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
+    # Кастомные права доступа, которые позволяют работать с API только авторизованным сотрудникам, которые являются
+    # активными
+    'DEFAULT_PERMISSION_CLASSES': [
+        'config.permission.IsActiveEmployee',
+    ],
+
+    # Настройка для фильтрации
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
+
+# Настройка для жизни ACCESS и REFRESH TOKEN
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
 }
